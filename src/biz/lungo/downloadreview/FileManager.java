@@ -20,18 +20,19 @@ public class FileManager extends Activity implements OnClickListener {
 	LinearLayout llRoot;
 	ArrayList<File> fileList;
 	String fileArrayString[];
+	int colorCount = 0;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);		
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.file_activity);
 		llRoot = (LinearLayout) findViewById(R.id.linearLayoutFiles);
 		File file = Environment.getExternalStorageDirectory();
 		fileList = sortByName(file.listFiles());
 		for (int i = 0; i < fileList.size(); i++){
-			FileView fv = new FileView(this, fileList.get(i));
-			fv.setText(fileList.get(i).getName());
-			fv.setOnClickListener(this);
+			FileView fv = new FileView(this, fileList.get(i), colorCount % 2);
+			//fv.llRoot.setOnClickListener(this);
 			llRoot.addView(fv);
+			colorCount++;
 		}
 	}
 	private ArrayList<File> sortByName(File[] array) {
@@ -46,7 +47,7 @@ public class FileManager extends Activity implements OnClickListener {
 				files.add(array[i]);
 			}
 		}
-		List<String> folderNamesList = Arrays.asList(extractNames(folders)); 
+		List<String> folderNamesList = Arrays.asList(extractNames(folders));
 		List<String> fileNamesList = Arrays.asList(extractNames(files));
 		List<File> sortedFolderList = new ArrayList<File>();
 		List<File> sortedFileList = new ArrayList<File>();
