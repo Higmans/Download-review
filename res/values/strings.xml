@@ -4,5 +4,6 @@
     <string name="app_name">DownloadReview</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="error_not_directory">Вы должны выбрать директорию, а не файл</string>
 
 </resources>

@@ -5,37 +5,42 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class FileManager extends Activity implements OnClickListener {
+public class FileManager extends Activity {
+	private static Activity activity;
+	static LinearLayout llRoot;
+	static int colorCount = 0;
+	static File currentFile;
 	TextView tv;
-	LinearLayout llRoot;
 	ArrayList<File> fileList;
 	String fileArrayString[];
-	int colorCount = 0;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		activity = this;
 		setContentView(R.layout.file_activity);
 		llRoot = (LinearLayout) findViewById(R.id.linearLayoutFiles);
 		File file = Environment.getExternalStorageDirectory();
-		fileList = sortByName(file.listFiles());
-		for (int i = 0; i < fileList.size(); i++){
-			FileView fv = new FileView(this, fileList.get(i), colorCount % 2);
-			//fv.llRoot.setOnClickListener(this);
-			llRoot.addView(fv);
-			colorCount++;
+		currentFile = file;
+		makeFileManager(file.listFiles());
+	}
+	static void makeFileManager(File filesArray[]) {
+		ArrayList<File> files = sortByName(filesArray);
+		for (int i = 0; i < files.size(); i++){
+			if (files.get(i).getName().charAt(0) != '.') {
+				FileView fv = new FileView(MainActivity.activity, files.get(i), colorCount % 2);
+				llRoot.addView(fv.llRoot);
+				colorCount++;
+			}
 		}
 	}
-	private ArrayList<File> sortByName(File[] array) {
+	static private ArrayList<File> sortByName(File[] array) {
 		ArrayList<File> result = new ArrayList<File>();
 		ArrayList<File> folders = new ArrayList<File>();
 		ArrayList<File> files = new ArrayList<File>();
@@ -73,19 +78,29 @@ public class FileManager extends Activity implements OnClickListener {
 		result.addAll(sortedFileList);
 		return result;
 	}
-	private String[] extractNames(ArrayList<File> list) {
+	static private String[] extractNames(ArrayList<File> list) {
 		String result[] = new String[list.size()];
 		for (int i = 0; i < list.size(); i++){
 			result[i] = list.get(i).getName();
 		}
 		return result;
 	}
-	@Override
-	public void onClick(View v) {
+	static void transferPath(String path){
 		Intent i = new Intent();
-		i.putExtra("file_path", ((FileView)v).getFile().getAbsolutePath());
-		setResult(RESULT_OK, i);
-		finish();
+		i.putExtra("file_path", path);
+		activity.setResult(RESULT_OK, i);
+		activity.finish();
+	}
+	@Override
+	public void onBackPressed() {
+		if (!currentFile.getAbsolutePath().equals(Environment.getExternalStorageDirectory().getAbsolutePath())){
+			currentFile = currentFile.getParentFile();
+			llRoot.removeAllViews();
+			makeFileManager(currentFile.listFiles());
+		}
+		else{
+			transferPath("");
+		}
 	}
 
 }
