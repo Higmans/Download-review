@@ -103,7 +103,7 @@ public class FileView extends LinearLayout implements OnClickListener, OnLongCli
 	@Override
 	public boolean onLongClick(View v) {
 		if (file.isDirectory()){
-			FileManager.transferPath(file.getAbsolutePath());			
+			FileManager.transferPath(file.getAbsolutePath());
 		}
 		else{
 			Toast.makeText(MainActivity.activity, 
