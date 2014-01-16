@@ -1,9 +1,16 @@
 package biz.lungo.downloadreview;
 
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -82,35 +89,68 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
 	
 	
-	private class DownloadTask extends AsyncTask<String, Integer, Long>{
+	private class DownloadTask extends AsyncTask<String, Integer, Long> {
 		@Override
 		protected Long doInBackground(String... data) {
-			Long counter = 0l;
-			for (int i = 1; i <= 100; i++){
-				publishProgress(i);
-				counter += 3;
-				try {
-					Thread.sleep(150);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+			String urlString = data[0];
+			String destinationString = data[1];
+			int count;
+			try {
+				URL url = new URL(urlString);
+				URLConnection conection = url.openConnection();
+				conection.connect();
+
+				// this will be useful so that you can show a typical 0-100%
+				// progress bar
+				int lenghtOfFile = conection.getContentLength();
+				//Map<String, List<String>> nameOfFile = conection.getHeaderFields();
+
+				// download the file
+				InputStream input = new BufferedInputStream(url.openStream(), 8192);
+
+				// Output stream
+				OutputStream output = new FileOutputStream(destinationString + "/myFile.pdf");
+
+				byte byteData[] = new byte[1024];
+
+				long total = 0;
+
+				while ((count = input.read(byteData)) != -1) {
+					total += count;
+					// publishing the progress....
+					// After this onProgressUpdate will be called
+					publishProgress((int) ((total * 100) / lenghtOfFile));
+
+					// writing data to file
+					output.write(byteData, 0, count);
 				}
-				if (isCancelled()){
-					break;
-				}
+
+				// flushing output
+				output.flush();
+
+				// closing streams
+				output.close();
+				input.close();
+
+			} catch (Exception e) {
+				Log.e("Error: ", e.getMessage());
 			}
-			return counter;
+			return Long.valueOf(500);
 		}
+
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			tvProgress.setText(values[0] + " %");
 			pb.setProgress(values[0]);
 			super.onProgressUpdate(values);
 		}
+
 		@Override
 		protected void onPostExecute(Long result) {
 			Toast.makeText(activity, "Finished! " + result, Toast.LENGTH_LONG).show();
 			super.onPostExecute(result);
 		}
+
 		@Override
 		protected void onCancelled(Long result) {
 			Toast.makeText(activity, "Облом! " + result, Toast.LENGTH_LONG).show();
