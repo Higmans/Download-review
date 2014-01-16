@@ -17,7 +17,7 @@
         android:ems="10"
         android:hint="URL"
         android:inputType="textUri"
-        android:text="http://www.mymatiz.com/pdf2/daewoomatiz0contents.pdf" >
+        android:text="http://www.renault.ua/media/brochures/att00452613/Scenic.pdf" >
 
         <requestFocus />
     </EditText>
